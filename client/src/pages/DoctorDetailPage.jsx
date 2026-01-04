@@ -5,6 +5,8 @@ import { FaStar, FaGraduationCap, FaBriefcase, FaArrowLeft } from 'react-icons/f
 import AppointmentComponent from '../components/AppointmentComponent';
 import './DoctorDetailPage.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const DoctorDetailPage = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -17,7 +19,7 @@ const DoctorDetailPage = () => {
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/doctors');
+        const response = await axios.get(`${API_BASE_URL}/api/doctors`);
         const foundDoctor = response.data.find(d => d.id === id);
         
         if (foundDoctor) {
@@ -31,7 +33,7 @@ const DoctorDetailPage = () => {
             education: 'Медичний університет',
             experience: '10',
             rating: 4.8,
-            photo: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+            photo: 'https://via.placeholder.com/400x500',
             services: ['Консультація', 'Лікування']
           });
         }
@@ -152,7 +154,6 @@ const DoctorDetailPage = () => {
         </div>
       </section>
 
-      {/* Модальне вікно для запису */}
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

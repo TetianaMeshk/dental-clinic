@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './HomeServices.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const HomeServices = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,9 +12,7 @@ const HomeServices = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        // Отримуємо послуги з сервера
-        const response = await axios.get('http://localhost:5000/api/services');
-        // Беремо тільки 3 послуги для головної сторінки
+        const response = await axios.get(`${API_BASE_URL}/api/services`);
         const servicesList = response.data.slice(0, 3);
         setServices(servicesList);
       } catch (error) {
@@ -45,7 +45,6 @@ const HomeServices = () => {
         <div className="services-preview-grid">
           {services.map(service => (
             <div key={service.id} className="service-preview-card">
-              {/* Видалено блок з іконкою */}
               <h3 className="service-preview-title">{service.name}</h3>
               <p className="service-preview-description">
                 {service.description && service.description.length > 80 

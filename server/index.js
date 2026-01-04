@@ -5,16 +5,36 @@ const { db, admin } = require('./firebase-admin');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://dentistry-healthy-smile.netlify.app',
+  'https://dentistry-healthy-smile.netlify.app/'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS блоковано для origin:', origin);
+      callback(new Error('Не дозволено політикою CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
-// Генерація унікального 6-значного номера направлення
 const generateReferenceNumber = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Основний маршрут
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Dental Clinic API', 
@@ -85,7 +105,6 @@ app.get('/api/doctors', async (req, res) => {
 // Маршрут для оновлення рейтингу лікаря
 const updateDoctorRating = async (doctorName, newRating) => {
   try {
-    // Знаходимо лікаря за іменем
     const doctorsRef = db.collection('doctors');
     const snapshot = await doctorsRef.where('name', '==', doctorName).get();
     
@@ -93,11 +112,9 @@ const updateDoctorRating = async (doctorName, newRating) => {
       const doctorDoc = snapshot.docs[0];
       const doctorData = doctorDoc.data();
       
-      // Оновлюємо рейтинг
       const currentRating = doctorData.rating || 0;
       const currentRatingCount = doctorData.ratingCount || 0;
       
-      // Розраховуємо новий середній рейтинг
       const totalRating = currentRating * currentRatingCount;
       const newTotalRating = totalRating + newRating;
       const newRatingCount = currentRatingCount + 1;
@@ -120,7 +137,6 @@ app.get('/api/doctors/by-service/:serviceId', async (req, res) => {
   try {
     const { serviceId } = req.params;
     
-    // Отримуємо послугу
     const serviceDoc = await db.collection('services').doc(serviceId).get();
     if (!serviceDoc.exists) {
       return res.status(404).json({ error: 'Послуга не знайдена' });
@@ -128,23 +144,19 @@ app.get('/api/doctors/by-service/:serviceId', async (req, res) => {
     
     const service = serviceDoc.data();
     
-    // Отримуємо всіх лікарів
     const doctorsRef = db.collection('doctors');
     const snapshot = await doctorsRef.get();
     const doctors = [];
     
-    // Фільтруємо лікарів, які надають цю послугу
     snapshot.forEach(doc => {
       const doctor = {
         id: doc.id,
         ...doc.data()
       };
       
-      // Перевіряємо, чи лікар надає цю послугу
       const doctorServices = doctor.services || [];
       const doctorServiceIds = doctor.serviceIds || [];
       
-      // Перевіряємо за назвою послуги або ID
       if (doctorServices.includes(service.name) || 
           doctorServiceIds.includes(serviceId) ||
           (service.specialties && service.specialties.includes(doctor.specialty))) {
@@ -168,7 +180,6 @@ app.get('/api/services/by-doctor/:doctorId', async (req, res) => {
   try {
     const { doctorId } = req.params;
     
-    // Отримуємо лікаря
     const doctorDoc = await db.collection('doctors').doc(doctorId).get();
     if (!doctorDoc.exists) {
       return res.status(404).json({ error: 'Лікар не знайдений' });
@@ -179,19 +190,16 @@ app.get('/api/services/by-doctor/:doctorId', async (req, res) => {
     const doctorServices = doctor.services || [];
     const doctorServiceIds = doctor.serviceIds || [];
     
-    // Отримуємо всі послуги
     const servicesRef = db.collection('services');
     const snapshot = await servicesRef.get();
     const services = [];
     
-    // Фільтруємо послуги, які надає цей лікар
     snapshot.forEach(doc => {
       const service = {
         id: doc.id,
         ...doc.data()
       };
       
-      // Перевіряємо за назвою послуги, ID або спеціалізації
       const isServiceInDoctorList = doctorServices.includes(service.name);
       const isServiceIdInDoctorList = doctorServiceIds.includes(service.id);
       const isSpecialtyMatch = service.specialties && service.specialties.includes(doctor.specialty);
@@ -221,7 +229,6 @@ app.get('/api/check-availability', async (req, res) => {
       return res.status(400).json({ error: 'Необхідно вказати лікаря, дату та час' });
     }
     
-    // Перевіряємо, чи час вже пройшов для поточної дати
     const today = new Date().toISOString().split('T')[0];
     if (date === today) {
       const now = new Date();
@@ -280,7 +287,6 @@ app.get('/api/booked-slots/:doctor', async (req, res) => {
       query = query.where('date', '==', date);
     }
     
-    // Беремо записи за останні 30 днів
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
@@ -334,7 +340,6 @@ app.post('/api/appointments', async (req, res) => {
   try {
     const appointmentData = req.body;
     
-    // Перевіряємо, чи час вже пройшов для поточної дати
     const today = new Date().toISOString().split('T')[0];
     if (appointmentData.date === today && appointmentData.time) {
       const now = new Date();
@@ -350,7 +355,6 @@ app.post('/api/appointments', async (req, res) => {
       }
     }
     
-    // Перевіряємо доступність лікаря
     if (appointmentData.doctor && appointmentData.doctor !== '') {
       const appointmentsRef = db.collection('appointments');
       const snapshot = await appointmentsRef
@@ -368,26 +372,21 @@ app.post('/api/appointments', async (req, res) => {
       }
     }
     
-    // Додаємо timestamp та генерацію номера направлення
     appointmentData.createdAt = new Date().toISOString();
     appointmentData.updatedAt = new Date().toISOString();
     appointmentData.referenceNumber = generateReferenceNumber();
     
-    // Додаємо поля для рейтингу
     appointmentData.isRated = false;
     appointmentData.rating = null;
     appointmentData.review = null;
     appointmentData.ratedAt = null;
     
-    // Визначаємо початковий статус
-    // Перевіряємо, чи запис вже пройшов за часом
     if (isAppointmentCompleted(appointmentData.date, appointmentData.time)) {
       appointmentData.status = 'completed';
     } else {
       appointmentData.status = 'active';
     }
     
-    // Зберігаємо в Firebase
     const docRef = await db.collection('appointments').add(appointmentData);
     
     res.status(200).json({ 
@@ -419,7 +418,6 @@ app.post('/api/appointments/:appointmentId/rate', async (req, res) => {
       });
     }
     
-    // Перевіряємо рейтинг (від 1 до 5)
     const ratingValue = parseInt(rating);
     if (ratingValue < 1 || ratingValue > 5) {
       return res.status(400).json({ 
@@ -428,7 +426,6 @@ app.post('/api/appointments/:appointmentId/rate', async (req, res) => {
       });
     }
     
-    // Перевіряємо, чи існує запис
     const appointmentDoc = await db.collection('appointments').doc(appointmentId).get();
     
     if (!appointmentDoc.exists) {
@@ -440,7 +437,6 @@ app.post('/api/appointments/:appointmentId/rate', async (req, res) => {
     
     const appointmentData = appointmentDoc.data();
     
-    // Перевіряємо, чи запис вже оцінений
     if (appointmentData.isRated) {
       return res.status(400).json({ 
         success: false,
@@ -448,7 +444,6 @@ app.post('/api/appointments/:appointmentId/rate', async (req, res) => {
       });
     }
     
-    // Перевіряємо, чи запис завершений
     if (appointmentData.status !== 'completed') {
       return res.status(400).json({ 
         success: false,
@@ -456,7 +451,6 @@ app.post('/api/appointments/:appointmentId/rate', async (req, res) => {
       });
     }
     
-    // Оновлюємо запис з оцінкою
     const updatedAt = new Date().toISOString();
     await db.collection('appointments').doc(appointmentId).update({
       isRated: true,
@@ -466,7 +460,6 @@ app.post('/api/appointments/:appointmentId/rate', async (req, res) => {
       updatedAt: updatedAt
     });
     
-    // Оновлюємо рейтинг лікаря
     if (appointmentData.doctor) {
       await updateDoctorRating(appointmentData.doctor, ratingValue);
     }
@@ -493,11 +486,9 @@ app.get('/api/appointments/by-user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     
-    // Отримуємо користувача з колекції users
     const userDoc = await db.collection('users').doc(userId).get();
     
     if (!userDoc.exists) {
-      // Якщо користувача немає в БД
       return res.json({
         success: true,
         userId,
@@ -519,7 +510,6 @@ app.get('/api/appointments/by-user/:userId', async (req, res) => {
       });
     }
     
-    // Отримуємо всі записи з БД
     const appointmentsRef = db.collection('appointments');
     const snapshot = await appointmentsRef.orderBy('date', 'desc').get();
     
@@ -531,24 +521,20 @@ app.get('/api/appointments/by-user/:userId', async (req, res) => {
       });
     });
     
-    // Фільтруємо записи: порівнюємо email з запису з email користувача
     const userAppointments = allAppointments.filter(appointment => {
       return appointment.email === userEmail;
     });
     
-    // Автоматично оновлюємо статуси на основі дати та часу
     const updatedAppointments = [];
     
     for (const appointment of userAppointments) {
       let updatedAppointment = { ...appointment };
       
-      // Автоматично змінюємо статус на "завершено", якщо запис вже пройшов
       if (appointment.status === 'active' && 
           isAppointmentCompleted(appointment.date, appointment.time)) {
         updatedAppointment.status = 'completed';
         updatedAppointment.updatedAt = new Date().toISOString();
         
-        // Оновлюємо в базі даних
         await db.collection('appointments').doc(appointment.id).update({
           status: 'completed',
           updatedAt: updatedAppointment.updatedAt
@@ -558,7 +544,6 @@ app.get('/api/appointments/by-user/:userId', async (req, res) => {
       updatedAppointments.push(updatedAppointment);
     }
     
-    // Розраховуємо статистику
     const active = updatedAppointments.filter(app => app.status === 'active').length;
     const completed = updatedAppointments.filter(app => app.status === 'completed').length;
     const cancelled = updatedAppointments.filter(app => app.status === 'cancelled').length;
@@ -603,7 +588,6 @@ app.patch('/api/appointments/:appointmentId', async (req, res) => {
       });
     }
     
-    // Перевіряємо, чи існує запис
     const appointmentDoc = await db.collection('appointments').doc(appointmentId).get();
     
     if (!appointmentDoc.exists) {
@@ -615,7 +599,6 @@ app.patch('/api/appointments/:appointmentId', async (req, res) => {
     
     const appointmentData = appointmentDoc.data();
     
-    // Перевіряємо, чи запис ще активний (можна скасувати тільки активні записи)
     if (appointmentData.status !== 'active') {
       return res.status(400).json({ 
         success: false,
@@ -623,7 +606,6 @@ app.patch('/api/appointments/:appointmentId', async (req, res) => {
       });
     }
     
-    // Перевіряємо, чи запис вже не пройшов
     if (isAppointmentCompleted(appointmentData.date, appointmentData.time)) {
       return res.status(400).json({ 
         success: false,
@@ -631,7 +613,6 @@ app.patch('/api/appointments/:appointmentId', async (req, res) => {
       });
     }
     
-    // Оновлюємо статус запису
     const updatedAt = new Date().toISOString();
     await db.collection('appointments').doc(appointmentId).update({
       status: status,
@@ -695,13 +676,11 @@ app.post('/api/user', async (req, res) => {
       });
     }
     
-    // Додаємо timestamp
     const timestamp = new Date().toISOString();
     
     const userDoc = await db.collection('users').doc(userId).get();
     
     if (userDoc.exists) {
-      // Оновлюємо існуючого користувача
       await db.collection('users').doc(userId).update({
         ...userInfo,
         updatedAt: timestamp
@@ -713,7 +692,6 @@ app.post('/api/user', async (req, res) => {
         userId 
       });
     } else {
-      // Створюємо нового користувача
       await db.collection('users').doc(userId).set({
         ...userInfo,
         createdAt: timestamp,
@@ -763,14 +741,12 @@ app.get('/api/appointments/:referenceNumber/status', async (req, res) => {
     const appointment = snapshot.docs[0].data();
     const appointmentId = snapshot.docs[0].id;
     
-    // Перевіряємо, чи запис вже пройшов
     let updatedAppointment = { ...appointment };
     if (appointment.status === 'active' && 
         isAppointmentCompleted(appointment.date, appointment.time)) {
       updatedAppointment.status = 'completed';
       updatedAppointment.updatedAt = new Date().toISOString();
       
-      // Оновлюємо в базі даних
       await db.collection('appointments').doc(appointmentId).update({
         status: 'completed',
         updatedAt: updatedAppointment.updatedAt
@@ -803,8 +779,6 @@ app.get('/api/appointments/:referenceNumber/status', async (req, res) => {
 // Маршрут для автоматичного оновлення статусів всіх записів (адміністративний)
 app.post('/api/appointments/update-statuses', async (req, res) => {
   try {
-    // Цей маршрут можна викликати через cron або вручну для оновлення всіх статусів
-    
     const appointmentsRef = db.collection('appointments');
     const snapshot = await appointmentsRef.get();
     
@@ -814,7 +788,6 @@ app.post('/api/appointments/update-statuses', async (req, res) => {
       const appointment = doc.data();
       const appointmentId = doc.id;
       
-      // Перевіряємо, чи активний запис вже пройшов
       if (appointment.status === 'active' && 
           isAppointmentCompleted(appointment.date, appointment.time)) {
         
@@ -865,4 +838,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Сервер запущено на порті ${PORT}`);
+  console.log('Дозволені домени для CORS:', allowedOrigins);
 });

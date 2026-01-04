@@ -17,6 +17,8 @@ import {
 import AppointmentComponent from './AppointmentComponent';
 import './UserAppointments.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const UserAppointments = ({ userId }) => {
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
@@ -39,31 +41,25 @@ const UserAppointments = ({ userId }) => {
     }
   }, [userId]);
 
-  // Функція для сортування записів за датою та часом
   const sortAppointmentsByDateTime = (appointmentsList) => {
     return [...appointmentsList].sort((a, b) => {
-      // Спочатку порівнюємо за датою
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
       
-      if (dateA > dateB) return -1; // Найновіші дати першими
+      if (dateA > dateB) return -1;
       if (dateA < dateB) return 1;
       
-      // Якщо дати однакові, порівнюємо за часом
       if (a.time && b.time) {
         const timeA = a.time.split(':').map(Number);
         const timeB = b.time.split(':').map(Number);
         
-        // Порівнюємо години
         if (timeA[0] !== timeB[0]) {
-          return timeB[0] - timeA[0]; // Пізніші години першими
+          return timeB[0] - timeA[0];
         }
         
-        // Якщо години однакові, порівнюємо хвилини
-        return timeB[1] - timeA[1]; // Пізніші хвилини першими
+        return timeB[1] - timeA[1];
       }
       
-      // Якщо немає часу, порівнюємо за часом створення
       const createdA = new Date(a.createdAt || 0);
       const createdB = new Date(b.createdAt || 0);
       return createdB - createdA;
@@ -71,7 +67,6 @@ const UserAppointments = ({ userId }) => {
   };
 
   useEffect(() => {
-    // Фільтрація записів при зміні статусу фільтра
     let filtered = [];
     
     if (filterStatus === 'all') {
@@ -95,7 +90,6 @@ const UserAppointments = ({ userId }) => {
       });
     }
     
-    // Сортуємо відфільтровані записи
     const sortedFiltered = sortAppointmentsByDateTime(filtered);
     setFilteredAppointments(sortedFiltered);
   }, [appointments, filterStatus]);
@@ -104,12 +98,10 @@ const UserAppointments = ({ userId }) => {
     try {
       setLoading(true);
       
-      const response = await axios.get(`http://localhost:5000/api/appointments/by-user/${userId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/appointments/by-user/${userId}`);
       
       if (response.data.success) {
         const fetchedAppointments = response.data.appointments || [];
-        
-        // Сортуємо отримані записи за датою та часом
         const sortedAppointments = sortAppointmentsByDateTime(fetchedAppointments);
         
         setAppointments(sortedAppointments);
@@ -140,7 +132,7 @@ const UserAppointments = ({ userId }) => {
     try {
       setCancellingId(appointmentId);
       
-      const response = await axios.patch(`http://localhost:5000/api/appointments/${appointmentId}`, {
+      const response = await axios.patch(`${API_BASE_URL}/api/appointments/${appointmentId}`, {
         status: 'cancelled'
       });
       
@@ -180,7 +172,6 @@ const UserAppointments = ({ userId }) => {
     return timeString;
   };
 
-  // Функція для перевірки, чи запис завершений (дата + час пройшли)
   const isAppointmentCompleted = (dateString, timeString) => {
     if (!dateString || !timeString) return false;
     
@@ -198,7 +189,6 @@ const UserAppointments = ({ userId }) => {
     }
   };
 
-  // Функція для отримання конфігурації статусу з урахуванням часу
   const getStatusConfig = (status, date, time) => {
     if (status === 'completed' || status === 'cancelled') {
       return {
@@ -233,7 +223,6 @@ const UserAppointments = ({ userId }) => {
     };
   };
 
-  // Функції для оцінки візиту
   const handleStarClick = (appointmentId, rating) => {
     setRatingAppointments(prev => ({
       ...prev,
@@ -265,7 +254,7 @@ const UserAppointments = ({ userId }) => {
     try {
       setSubmittingRating(prev => ({ ...prev, [appointmentId]: true }));
       
-      const response = await axios.post(`http://localhost:5000/api/appointments/${appointmentId}/rate`, {
+      const response = await axios.post(`${API_BASE_URL}/api/appointments/${appointmentId}/rate`, {
         rating: ratingData.rating,
         review: ratingData.review || ''
       });
@@ -273,10 +262,8 @@ const UserAppointments = ({ userId }) => {
       if (response.data.success) {
         alert('Дякуємо за вашу оцінку!');
         
-        // Оновлюємо список записів
         await fetchAppointments(userId);
         
-        // Очищаємо дані оцінки
         setRatingAppointments(prev => {
           const newRatings = { ...prev };
           delete newRatings[appointmentId];
@@ -324,12 +311,10 @@ const UserAppointments = ({ userId }) => {
   };
 
   const renderRatingSection = (appointment) => {
-    // Якщо запис ще не завершений - не показуємо секцію оцінки
     if (appointment.status !== 'completed') {
       return null;
     }
     
-    // Якщо запис вже оцінений
     if (appointment.isRated) {
       return (
         <div className="appointment-rating-section">
@@ -353,7 +338,6 @@ const UserAppointments = ({ userId }) => {
       );
     }
     
-    // Якщо запис можна оцінити
     return (
       <div className="appointment-rating-section">
         <div className="rating-section-title">
@@ -392,7 +376,6 @@ const UserAppointments = ({ userId }) => {
     );
   };
 
-  // Функції для фільтрації
   const handleStatusFilter = (status) => {
     setFilterStatus(status);
   };
@@ -605,7 +588,6 @@ const UserAppointments = ({ userId }) => {
                         </div>
                       )}
                       
-                      {/* Секція оцінки візиту */}
                       {renderRatingSection(appointment)}
                       
                       <div className="appointment-footer">
@@ -615,7 +597,6 @@ const UserAppointments = ({ userId }) => {
                         </div>
                         
                         <div className="appointment-actions">
-                          {/* Кнопка "Скасувати" показується тільки для активних записів, які ще не пройшли за часом */}
                           {appointment.status === 'active' && !isAppointmentCompleted(appointment.date, appointment.time) && (
                             <button 
                               className="btn btn-danger"
@@ -652,7 +633,6 @@ const UserAppointments = ({ userId }) => {
         )}
       </div>
 
-      {/* Модальне вікно для створення нового запису */}
       {showAppointmentModal && (
         <div className="modal-overlay" onClick={handleCloseAppointmentModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -660,7 +640,7 @@ const UserAppointments = ({ userId }) => {
               isModal={true}
               onClose={() => {
                 handleCloseAppointmentModal();
-                fetchAppointments(userId); // Оновлюємо список записів після закриття
+                fetchAppointments(userId);
               }}
             />
           </div>

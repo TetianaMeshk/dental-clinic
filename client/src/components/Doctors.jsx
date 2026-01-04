@@ -4,6 +4,8 @@ import axios from 'axios';
 import { FaStar, FaGraduationCap, FaBriefcase, FaFilter } from 'react-icons/fa';
 import './Doctors.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
@@ -13,28 +15,23 @@ const Doctors = () => {
   const [servicesLoading, setServicesLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Функція для збереження стану фільтра
   const saveFilterState = (serviceId) => {
     sessionStorage.setItem('doctors_filter_service', serviceId);
   };
 
-  // Функція для завантаження стану фільтра
   const loadFilterState = () => {
     return sessionStorage.getItem('doctors_filter_service') || '';
   };
 
-  // Функція для застосування фільтра
   const applyFilter = async (serviceId) => {
     if (!serviceId) {
-      // Якщо послуга не обрана - показуємо всіх лікарів
       setFilteredDoctors(doctors);
       return;
     }
     
     try {
       setServicesLoading(true);
-      // Отримуємо лікарів для обраної послуги
-      const response = await axios.get(`http://localhost:5000/api/doctors/by-service/${serviceId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/doctors/by-service/${serviceId}`);
       setFilteredDoctors(response.data.doctors);
     } catch (error) {
       console.error('Помилка при фільтрації лікарів:', error);
@@ -48,26 +45,20 @@ const Doctors = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Завантажуємо збережений стан фільтра
         const savedServiceId = loadFilterState();
         
-        // Отримуємо всіх лікарів
-        const doctorsResponse = await axios.get('http://localhost:5000/api/doctors');
+        const doctorsResponse = await axios.get(`${API_BASE_URL}/api/doctors`);
         setDoctors(doctorsResponse.data);
         
-        // Отримуємо всі послуги
-        const servicesResponse = await axios.get('http://localhost:5000/api/services');
+        const servicesResponse = await axios.get(`${API_BASE_URL}/api/services`);
         setServices(servicesResponse.data);
         
-        // Встановлюємо збережений стан фільтра
         if (savedServiceId) {
           setSelectedService(savedServiceId);
           
-          // Знаходимо лікарів для збереженої послуги
           try {
             setServicesLoading(true);
-            const filterResponse = await axios.get(`http://localhost:5000/api/doctors/by-service/${savedServiceId}`);
+            const filterResponse = await axios.get(`${API_BASE_URL}/api/doctors/by-service/${savedServiceId}`);
             setFilteredDoctors(filterResponse.data.doctors);
           } catch (filterError) {
             console.error('Помилка при застосуванні збереженого фільтра:', filterError);
@@ -76,7 +67,6 @@ const Doctors = () => {
             setServicesLoading(false);
           }
         } else {
-          // Якщо немає збереженого фільтра - показуємо всіх лікарів
           setFilteredDoctors(doctorsResponse.data);
         }
       } catch (error) {
@@ -99,11 +89,7 @@ const Doctors = () => {
   const handleServiceChange = async (e) => {
     const serviceId = e.target.value;
     setSelectedService(serviceId);
-    
-    // Зберігаємо стан фільтра
     saveFilterState(serviceId);
-    
-    // Застосовуємо фільтр
     await applyFilter(serviceId);
   };
 
@@ -145,7 +131,6 @@ const Doctors = () => {
       <div className="container">
         <h2 className="section-title">Усі спеціалісти</h2>
         
-        {/* Фільтр за послугами */}
         <div className="doctors-filter" style={{ backgroundColor: 'white' }}>
           <div className="filter-header">
             <FaFilter className="filter-icon" />
@@ -174,7 +159,6 @@ const Doctors = () => {
             )}
           </div>
           
-          {/* Результати фільтрації */}
           {selectedService && (
             <div className="filter-results">
               <p>

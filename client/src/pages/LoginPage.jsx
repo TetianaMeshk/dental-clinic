@@ -10,6 +10,8 @@ import axios from 'axios';
 import { FaEnvelope, FaLock, FaUser, FaPhone, FaUserPlus, FaSignInAlt, FaTimes } from 'react-icons/fa';
 import './LoginPage.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const LoginPage = ({ onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -37,7 +39,7 @@ const LoginPage = ({ onClose }) => {
 
   const saveUserToDatabase = async (userId, userEmail, userName, userPhone) => {
     try {
-      await axios.post('http://localhost:5000/api/user', {
+      await axios.post(`${API_BASE_URL}/api/user`, {
         userId,
         email: userEmail,
         name: userName,
@@ -62,14 +64,11 @@ const LoginPage = ({ onClose }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       
-      // Отримуємо додаткові дані з Google
       const userName = user.displayName || user.email.split('@')[0];
       const userPhone = user.phoneNumber || '';
       
-      // Зберігаємо додаткову інформацію на сервері
       await saveUserToDatabase(user.uid, user.email, userName, userPhone);
       
-      // Закриваємо модальне вікно та переходимо до профілю
       onClose();
       navigate('/profile');
     } catch (error) {
@@ -87,19 +86,14 @@ const LoginPage = ({ onClose }) => {
 
     try {
       if (isLogin) {
-        // ВХІД в існуючий акаунт
         await signInWithEmailAndPassword(auth, email, password);
-        // Закриваємо модальне вікно та переходимо до профілю
         onClose();
         navigate('/profile');
       } else {
-        // РЕЄСТРАЦІЯ нового користувача
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Зберігаємо додаткову інформацію на сервері
         await saveUserToDatabase(user.uid, user.email, name, phone);
-        // Закриваємо модальне вікно та переходимо до профілю
         onClose();
         navigate('/profile');
       }
@@ -247,7 +241,6 @@ const LoginPage = ({ onClose }) => {
             <span>або</span>
           </div>
 
-          {/* Кнопка Google */}
           <button 
             className="google-btn"
             onClick={handleGoogleSignIn}

@@ -16,6 +16,8 @@ import {
 import UserAppointments from '../components/UserAppointments';
 import './ProfilePage.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -32,7 +34,6 @@ const ProfilePage = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (!currentUser) {
-        // Якщо користувач не авторизований - перенаправляємо на головну
         navigate('/');
         return;
       }
@@ -47,7 +48,7 @@ const ProfilePage = () => {
 
   const fetchUserData = async (userId) => {
     try {
-      const userResponse = await axios.get(`http://localhost:5000/api/user/${userId}`);
+      const userResponse = await axios.get(`${API_BASE_URL}/api/user/${userId}`);
       
       if (userResponse.data.success) {
         const data = userResponse.data;
@@ -74,7 +75,7 @@ const ProfilePage = () => {
         });
         
         try {
-          await axios.post('http://localhost:5000/api/user', {
+          await axios.post(`${API_BASE_URL}/api/user`, {
             userId: user.uid,
             ...defaultUserData
           });
@@ -122,7 +123,7 @@ const ProfilePage = () => {
       setSaving(true);
       setError('');
 
-      const response = await axios.post('http://localhost:5000/api/user', {
+      const response = await axios.post(`${API_BASE_URL}/api/user`, {
         userId: user.uid,
         name: editForm.name.trim(),
         phone: editForm.phone.trim(),
@@ -131,7 +132,6 @@ const ProfilePage = () => {
       });
 
       if (response.data.success) {
-        // Оновлюємо локальні дані
         const updatedUserData = {
           ...userData,
           name: editForm.name.trim(),

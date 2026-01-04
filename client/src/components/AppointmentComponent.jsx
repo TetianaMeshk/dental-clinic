@@ -5,6 +5,8 @@ import './AppointmentComponent.css';
 import { auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const AppointmentComponent = ({ 
   isModal = false, 
   selectedService = '', 
@@ -45,7 +47,6 @@ const AppointmentComponent = ({
     '14:00', '15:00', '16:00', '17:00', '18:00'
   ];
 
-  // Функція для перевірки, чи час вже пройшов для поточної дати
   const isTimeInPast = (dateString, timeString) => {
     if (!dateString || !timeString) return false;
     
@@ -66,13 +67,11 @@ const AppointmentComponent = ({
       if (currentUser) {
         setUser(currentUser);
         try {
-          // Отримуємо додаткові дані користувача з сервера
-          const response = await axios.get(`http://localhost:5000/api/user/${currentUser.uid}`);
+          const response = await axios.get(`${API_BASE_URL}/api/user/${currentUser.uid}`);
           if (response.data.success) {
             const userDataFromServer = response.data;
             setUserData(userDataFromServer);
             
-            // Автоматично заповнюємо форму даними користувача
             setFormData(prev => ({
               ...prev,
               name: userDataFromServer.name || '',
@@ -82,7 +81,6 @@ const AppointmentComponent = ({
           }
         } catch (error) {
           console.error('Помилка при отриманні даних користувача:', error);
-          // Якщо не вдалося отримати дані з сервера, використовуємо дані з Firebase
           setFormData(prev => ({
             ...prev,
             email: currentUser.email || ''
@@ -91,7 +89,6 @@ const AppointmentComponent = ({
       } else {
         setUser(null);
         setUserData(null);
-        // Якщо користувач не авторизований, очищаємо поля
         setFormData(prev => ({
           ...prev,
           name: '',
@@ -106,13 +103,12 @@ const AppointmentComponent = ({
   }, []);
 
   useEffect(() => {
-    // Завантажуємо всі дані
     const fetchData = async () => {
       try {
         setLoading(true);
         const [servicesResponse, doctorsResponse] = await Promise.all([
-          axios.get('http://localhost:5000/api/services'),
-          axios.get('http://localhost:5000/api/doctors')
+          axios.get(`${API_BASE_URL}/api/services`),
+          axios.get(`${API_BASE_URL}/api/doctors`)
         ]);
         
         setAllServices(servicesResponse.data);
@@ -149,11 +145,10 @@ const AppointmentComponent = ({
     setAvailableTimes(allTimes);
   }, [selectedService, selectedDoctor]);
 
-  // Функція для завантаження лікарів за послугою
   const fetchDoctorsForService = async (serviceId) => {
     try {
       setFetchingData(true);
-      const response = await axios.get(`http://localhost:5000/api/doctors/by-service/${serviceId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/doctors/by-service/${serviceId}`);
       setFilteredDoctors(response.data.doctors);
       
       if (formData.doctor) {
@@ -170,11 +165,10 @@ const AppointmentComponent = ({
     }
   };
 
-  // Функція для завантаження послуг за лікарем
   const fetchServicesForDoctor = async (doctorId) => {
     try {
       setFetchingData(true);
-      const response = await axios.get(`http://localhost:5000/api/services/by-doctor/${doctorId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/services/by-doctor/${doctorId}`);
       setFilteredServices(response.data.services);
       
       if (formData.service) {
@@ -191,14 +185,13 @@ const AppointmentComponent = ({
     }
   };
 
-  // Ефект для завантаження зайнятих слотів та перевірки доступності
   useEffect(() => {
     const fetchBookedSlots = async () => {
       if (formData.doctor && formData.date) {
         try {
           setCheckingAvailability(true);
           const response = await axios.get(
-            `http://localhost:5000/api/booked-slots/${encodeURIComponent(formData.doctor)}`, 
+            `${API_BASE_URL}/api/booked-slots/${encodeURIComponent(formData.doctor)}`, 
             { params: { date: formData.date } }
           );
           
@@ -208,7 +201,6 @@ const AppointmentComponent = ({
             .filter(slot => slot.date === formData.date)
             .map(slot => slot.time);
           
-          // Фільтруємо часи: прибираємо заброньовані та пройдені (для поточної дати)
           const today = new Date().toISOString().split('T')[0];
           const available = allTimes.filter(time => {
             const isBooked = bookedTimes.includes(time);
@@ -218,7 +210,6 @@ const AppointmentComponent = ({
           
           setAvailableTimes(available);
           
-          // Якщо вибраний час зайнятий або пройшов, скидаємо його
           if (formData.time && (bookedTimes.includes(formData.time) || 
               (formData.date === today && isTimeInPast(formData.date, formData.time)))) {
             setFormData(prev => ({ ...prev, time: '' }));
@@ -230,14 +221,12 @@ const AppointmentComponent = ({
           setCheckingAvailability(false);
         }
       } else {
-        // Якщо дата вибрана, але лікаря немає, фільтруємо тільки пройдені часи
         if (formData.date) {
           const today = new Date().toISOString().split('T')[0];
           if (formData.date === today) {
             const available = allTimes.filter(time => !isTimeInPast(formData.date, time));
             setAvailableTimes(available);
             
-            // Якщо вибраний час пройшов, скидаємо його
             if (formData.time && isTimeInPast(formData.date, formData.time)) {
               setFormData(prev => ({ ...prev, time: '' }));
             }
@@ -311,23 +300,20 @@ const AppointmentComponent = ({
     setSubmitting(true);
     
     try {
-      // Якщо користувач авторизований, додаємо його ID до даних запису
       const appointmentData = { ...formData };
       if (user) {
         appointmentData.userId = user.uid;
       }
       
-      const response = await axios.post('http://localhost:5000/api/appointments', appointmentData);
+      const response = await axios.post(`${API_BASE_URL}/api/appointments`, appointmentData);
       
       if (response.data.success) {
-        // Показуємо повідомлення з номером направлення
         if (response.data.referenceNumber) {
           setSubmitStatus(`success:${response.data.referenceNumber}`);
         } else {
           setSubmitStatus('success');
         }
         
-        // Скидаємо форму (але зберігаємо дані користувача, якщо він авторизований)
         const resetData = {
           name: user ? formData.name : '',
           phone: user ? formData.phone : '',
@@ -344,7 +330,6 @@ const AppointmentComponent = ({
         setFilteredServices(allServices);
         setFilteredDoctors(allDoctors);
         
-        // Закриваємо модальне вікно через 2 секунди
         if (isModal) {
           setTimeout(() => {
             setFormData(resetData);
@@ -368,10 +353,7 @@ const AppointmentComponent = ({
     }
   };
 
-  // Мінімальна дата - сьогодні
   const today = new Date().toISOString().split('T')[0];
-
-  // Функція для визначення, чи час доступний (не заброньований і не пройшов)
   const isTimeAvailable = (time) => {
     const isBooked = isTimeBooked(time);
     const isPast = formData.date === today && isTimeInPast(formData.date, time);
@@ -396,7 +378,6 @@ const AppointmentComponent = ({
         </div>
       )}
       
-      {/* Інформація про авторизованого користувача */}
       {user && (
         <div className="user-info-notice">
           <div className="user-info-header">

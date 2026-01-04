@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './DoctorsHome.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const DoctorsHome = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,14 +13,12 @@ const DoctorsHome = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/doctors');
-        // Сортуємо лікарів за рейтингом (від найвищого до найнижчого)
+        const response = await axios.get(`${API_BASE_URL}/api/doctors`);
         const sortedDoctors = response.data.sort((a, b) => {
           const ratingA = a.rating || 0;
           const ratingB = b.rating || 0;
-          return ratingB - ratingA; // Сортування за спаданням
+          return ratingB - ratingA;
         });
-        // Беремо тільки 3 лікарів з найвищим рейтингом для головної сторінки
         const topDoctors = sortedDoctors.slice(0, 3);
         setDoctors(topDoctors);
       } catch (error) {

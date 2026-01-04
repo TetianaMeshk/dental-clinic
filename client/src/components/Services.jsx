@@ -4,6 +4,8 @@ import axios from 'axios';
 import AppointmentComponent from './AppointmentComponent';
 import './Services.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/services');
+        const response = await axios.get(`${API_BASE_URL}/api/services`);
         setServices(response.data);
       } catch (error) {
         console.error('Помилка при отриманні послуг:', error);
@@ -72,7 +74,6 @@ const Services = () => {
           <div className="services-grid">
             {services.map(service => (
               <div key={service.id} className="service-card">
-                {/* Видалено блок з іконкою */}
                 <h3 className="service-title">{service.name}</h3>
                 <p className="service-description">{service.description || 'Опис послуги'}</p>
                 
@@ -105,7 +106,6 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Модальне вікно для запису */}
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
