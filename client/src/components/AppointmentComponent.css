@@ -145,6 +145,8 @@
   border-radius: 15px;
   padding: 30px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 95vw;
+  margin: 0 auto;
 }
 
 .modal-header {
@@ -270,6 +272,20 @@
 @media (max-width: 768px) {
   .appointment-modal {
     padding: 20px;
+    margin: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 0.95rem;
   }
   
   .form-actions {
@@ -279,14 +295,100 @@
   .form-actions .btn {
     width: 100%;
   }
+  
+  .user-info-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .user-avatar {
+    width: 45px;
+    height: 45px;
+    font-size: 1.3rem;
+  }
 }
 
 @media (max-width: 576px) {
   .appointment-wrapper {
-    padding: 30px 20px;
+    padding: 25px 15px;
   }
   
   .appointment-info h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+  }
+  
+  .appointment-info p {
+    font-size: 0.95rem;
+  }
+  
+  .appointment-modal {
+    padding: 15px;
+    border-radius: 12px;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .submit-btn {
+    padding: 12px;
+    font-size: 1rem;
+  }
+  
+  .alert {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+  
+  .form-row {
+    gap: 15px;
+  }
+  
+  .user-info-notice {
+    padding: 12px;
+  }
+  
+  .user-info-text p {
+    font-size: 0.9rem;
+  }
+  
+  .user-info-hint {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .appointment-modal {
+    padding: 12px;
+    margin: 5px;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 0.85rem;
+    padding: 7px 9px;
+  }
+  
+  .close-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1.3rem;
+  }
+  
+  .modal-header {
+    margin-bottom: 15px;
   }
 }

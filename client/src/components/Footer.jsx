@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
+import { Link } from 'react-router-dom'; // Додайте цей імпорт
 import './Footer.css';
 
 const Footer = () => {
@@ -20,9 +21,10 @@ const Footer = () => {
           <div className="footer-section">
             <h3>Швидкі посилання</h3>
             <ul className="footer-links">
-              <li><a href="/services">Послуги</a></li>
-              <li><a href="/doctors">Лікарі</a></li>
-              <li><a href="#appointment-form">Запис на прийом</a></li>
+              {/* ЗМІНІТЬ <a> на <Link> для React Router */}
+              <li><Link to="/services">Послуги</Link></li>
+              <li><Link to="/doctors">Лікарі</Link></li>
+              <li><a href="/#appointment-form">Запис на прийом</a></li>
             </ul>
           </div>
           

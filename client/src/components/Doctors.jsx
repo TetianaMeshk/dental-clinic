@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FaStar, FaGraduationCap, FaBriefcase, FaFilter } from 'react-icons/fa';
 import './Doctors.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = 'https://dental-clinic-server-e4mh.onrender.com';
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);

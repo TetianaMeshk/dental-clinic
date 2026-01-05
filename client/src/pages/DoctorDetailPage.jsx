@@ -5,7 +5,7 @@ import { FaStar, FaGraduationCap, FaBriefcase, FaArrowLeft } from 'react-icons/f
 import AppointmentComponent from '../components/AppointmentComponent';
 import './DoctorDetailPage.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = 'https://dental-clinic-server-e4mh.onrender.com';
 
 const DoctorDetailPage = () => {
   const { id } = useParams();

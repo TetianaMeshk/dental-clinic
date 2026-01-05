@@ -17,7 +17,7 @@ import {
 import AppointmentComponent from './AppointmentComponent';
 import './UserAppointments.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = 'https://dental-clinic-server-e4mh.onrender.com';
 
 const UserAppointments = ({ userId }) => {
   const [appointments, setAppointments] = useState([]);

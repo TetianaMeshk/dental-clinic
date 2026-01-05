@@ -10,7 +10,7 @@ import axios from 'axios';
 import { FaEnvelope, FaLock, FaUser, FaPhone, FaUserPlus, FaSignInAlt, FaTimes } from 'react-icons/fa';
 import './LoginPage.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = 'https://dental-clinic-server-e4mh.onrender.com';
 
 const LoginPage = ({ onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
