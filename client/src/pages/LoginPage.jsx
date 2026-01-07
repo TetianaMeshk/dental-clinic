@@ -51,7 +51,7 @@ const LoginPage = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    if (!loading) {
+    if (!loading && !googleLoading) {
       onClose();
     }
   };
@@ -128,37 +128,43 @@ const LoginPage = ({ onClose }) => {
   };
 
   const handleOverlayClick = (e) => {
-    if (e.target.classList.contains('modal-overlay') && !loading) {
+    if (e.target.classList.contains('loginpage-modal-overlay') && !loading && !googleLoading) {
       handleClose();
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="loginpage-modal-overlay" onClick={handleOverlayClick}>
+      <div className="loginpage-auth-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="loginpage-modal-header">
           <h2>{isLogin ? 'Вхід в акаунт' : 'Реєстрація'}</h2>
-          <button className="close-btn" onClick={handleClose} disabled={loading || googleLoading}>
+          <button 
+            className="loginpage-close-btn" 
+            onClick={handleClose} 
+            disabled={loading || googleLoading}
+            aria-label="Закрити"
+          >
             <FaTimes />
           </button>
         </div>
         
-        <div className="modal-content">
+        <div className="loginpage-modal-content">
           {error && (
-            <div className="auth-error">
+            <div className="loginpage-auth-error">
               {error}
             </div>
           )}
           
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="loginpage-auth-form" onSubmit={handleSubmit}>
             {!isLogin && (
               <>
-                <div className="form-group">
-                  <label>
-                    <FaUser className="input-icon" />
+                <div className="loginpage-form-group">
+                  <label htmlFor="loginpage-name">
+                    <FaUser className="loginpage-input-icon" />
                     Ваше ім'я *
                   </label>
                   <input
+                    id="loginpage-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -168,12 +174,13 @@ const LoginPage = ({ onClose }) => {
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label>
-                    <FaPhone className="input-icon" />
+                <div className="loginpage-form-group">
+                  <label htmlFor="loginpage-phone">
+                    <FaPhone className="loginpage-input-icon" />
                     Номер телефону *
                   </label>
                   <input
+                    id="loginpage-phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -185,12 +192,13 @@ const LoginPage = ({ onClose }) => {
               </>
             )}
             
-            <div className="form-group">
-              <label>
-                <FaEnvelope className="input-icon" />
+            <div className="loginpage-form-group">
+              <label htmlFor="loginpage-email">
+                <FaEnvelope className="loginpage-input-icon" />
                 Email *
               </label>
               <input
+                id="loginpage-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -200,12 +208,13 @@ const LoginPage = ({ onClose }) => {
               />
             </div>
             
-            <div className="form-group">
-              <label>
-                <FaLock className="input-icon" />
+            <div className="loginpage-form-group">
+              <label htmlFor="loginpage-password">
+                <FaLock className="loginpage-input-icon" />
                 Пароль *
               </label>
               <input
+                id="loginpage-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -218,7 +227,7 @@ const LoginPage = ({ onClose }) => {
             
             <button 
               type="submit" 
-              className="submit-btn"
+              className="loginpage-submit-btn"
               disabled={loading || googleLoading}
             >
               {loading ? (
@@ -237,25 +246,25 @@ const LoginPage = ({ onClose }) => {
             </button>
           </form>
 
-          <div className="auth-divider">
+          <div className="loginpage-auth-divider">
             <span>або</span>
           </div>
 
           <button 
-            className="google-btn"
+            className="loginpage-google-btn"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || loading}
             type="button"
           >
-            <div className="google-icon"></div>
+            <div className="loginpage-google-icon"></div>
             {googleLoading ? 'Завантаження...' : 'Увійти через Google'}
           </button>
           
-          <div className="auth-switch">
+          <div className="loginpage-auth-switch">
             <p>
               {isLogin ? 'Ще не маєте акаунту?' : 'Вже маєте акаунт?'}
               <button 
-                className="switch-btn"
+                className="loginpage-switch-btn"
                 onClick={() => setIsLogin(!isLogin)}
                 disabled={loading || googleLoading}
                 type="button"

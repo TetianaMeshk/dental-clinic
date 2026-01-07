@@ -1,173 +1,192 @@
 .doctor-detail-section {
-    padding: 60px 0 80px;
-    background-color: #f8f9fa;
-    min-height: 100vh;
-  }
-  
-  .back-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: none;
-    color: #3498db;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 10px 15px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    margin-bottom: 30px;
-  }
-  
-  .back-btn:hover {
-    background-color: #f1f8ff;
-  }
-  
+  padding: 60px 0 80px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  margin-bottom: 30px;
+}
+
+.back-btn:hover {
+  background-color: #f1f8ff;
+}
+
+.doctor-detail-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 50px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-detail-image {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doctor-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.doctor-detail-name {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.doctor-detail-specialty {
+  font-size: 1.3rem;
+  color: #3498db;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.doctor-detail-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem;
+}
+
+.doctor-detail-rating .star {
+  color: #ddd;
+}
+
+.doctor-detail-rating .star.filled {
+  color: #f1c40f;
+}
+
+.rating-value {
+  margin-left: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.doctor-detail-education,
+.doctor-detail-experience,
+.doctor-detail-description,
+.doctor-detail-services {
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.doctor-detail-education h3,
+.doctor-detail-experience h3,
+.doctor-detail-description h3,
+.doctor-detail-services h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.doctor-detail-education p,
+.doctor-detail-experience p,
+.doctor-detail-description p {
+  color: #555;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+.doctor-detail-services ul {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.doctor-detail-services li {
+  background-color: #f1f8ff;
+  padding: 8px 15px;
+  border-radius: 20px;
+  color: #3498db;
+  font-weight: 500;
+}
+
+.doctor-detail-actions {
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.appointment-btn {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  font-size: 1.3rem;
+  color: #7f8c8d;
+}
+
+@media (max-width: 992px) {
   .doctor-detail-container {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 50px;
-    background-color: white;
-    border-radius: 15px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
   
   .doctor-detail-image {
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .doctor-detail-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .doctor-detail-info {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    max-width: 400px;
+    margin: 0 auto;
   }
   
   .doctor-detail-name {
-    font-size: 2.5rem;
-    color: #2c3e50;
-    margin-bottom: 5px;
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .doctor-detail-container {
+    padding: 20px;
   }
   
-  .doctor-detail-specialty {
-    font-size: 1.3rem;
-    color: #3498db;
-    font-weight: 600;
-    margin-bottom: 15px;
+  .doctor-detail-name {
+    font-size: 1.8rem;
   }
   
-  .doctor-detail-rating {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.2rem;
-  }
-  
-  .doctor-detail-rating .star {
-    color: #ddd;
-  }
-  
-  .doctor-detail-rating .star.filled {
-    color: #f1c40f;
-  }
-  
-  .rating-value {
-    margin-left: 10px;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .doctor-detail-education,
-  .doctor-detail-experience,
-  .doctor-detail-description,
-  .doctor-detail-services {
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-  }
-  
-  .doctor-detail-education h3,
-  .doctor-detail-experience h3,
-  .doctor-detail-description h3,
-  .doctor-detail-services h3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-    color: #2c3e50;
-  }
-  
-  .doctor-detail-education p,
-  .doctor-detail-experience p,
-  .doctor-detail-description p {
-    color: #555;
-    line-height: 1.6;
-    font-size: 1.1rem;
-  }
-  
-  .doctor-detail-services ul {
-    list-style: none;
-    padding-left: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .doctor-detail-services li {
-    background-color: #f1f8ff;
-    padding: 8px 15px;
-    border-radius: 20px;
-    color: #3498db;
-    font-weight: 500;
-  }
-  
-  .doctor-detail-actions {
-    padding-top: 30px;
-    border-top: 1px solid #eee;
-  }
-  
+  /* Стилі для кнопки на малих екранах */
   .appointment-btn {
-    padding: 15px 30px;
-    font-size: 1.1rem;
+    padding: 12px 20px;
+    font-size: 1rem;
+    white-space: normal; /* Дозволяє перенесення тексту */
+    word-wrap: break-word; /* Переносить довгі слова */
+    line-height: 1.3; /* Зменшує висоту рядка */
+    text-align: center; /* Центрує текст */
+    width: 100%; /* Займає всю доступну ширину */
   }
-  
-  .loading {
-    text-align: center;
-    padding: 60px;
-    font-size: 1.3rem;
-    color: #7f8c8d;
+}
+
+@media (max-width: 400px) {
+  /* Додаткові стилі для дуже малих екранів */
+  .appointment-btn {
+    font-size: 0.95rem;
+    padding: 10px 15px;
   }
-  
-  @media (max-width: 992px) {
-    .doctor-detail-container {
-      grid-template-columns: 1fr;
-      gap: 30px;
-    }
-    
-    .doctor-detail-image {
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    
-    .doctor-detail-name {
-      font-size: 2rem;
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .doctor-detail-container {
-      padding: 20px;
-    }
-    
-    .doctor-detail-name {
-      font-size: 1.8rem;
-    }
-  }
+}

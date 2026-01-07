@@ -145,8 +145,9 @@
   border-radius: 15px;
   padding: 30px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  max-width: 95vw;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .modal-header {
@@ -258,6 +259,32 @@
   box-shadow: none !important;
 }
 
+/* Стилі для оверлея (фону) модального вікна */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Контейнер модального вмісту */
+.modal-content {
+  width: 100%;
+  max-width: 600px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
 /* Адаптивність */
 @media (max-width: 992px) {
   .appointment-wrapper {
@@ -272,9 +299,10 @@
 @media (max-width: 768px) {
   .appointment-modal {
     padding: 20px;
-    margin: 10px;
-    max-height: 90vh;
+    max-height: 100vh;
     overflow-y: auto;
+    border-radius: 0;
+    margin: 0 !important;
   }
   
   .modal-header h2 {
@@ -324,7 +352,8 @@
   
   .appointment-modal {
     padding: 15px;
-    border-radius: 12px;
+    border-radius: 0;
+    margin: 0 !important;
   }
   
   .modal-header h2 {
@@ -363,12 +392,18 @@
   .user-info-hint {
     font-size: 0.8rem;
   }
+  
+  .modal-overlay {
+    align-items: flex-start;
+    padding-top: 0;
+  }
 }
 
 @media (max-width: 400px) {
   .appointment-modal {
     padding: 12px;
-    margin: 5px;
+    min-height: 100vh;
+    margin: 0 !important;
   }
   
   .modal-header h2 {
